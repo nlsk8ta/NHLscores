@@ -1,59 +1,271 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>NHL Point Standings</title>
-  </head>
-  <body>
-    <h1>NHL Point Standings</h1>
-    <table>
-      <caption>Joe's Teams</caption>
-      <thead>
-        <tr>
-          <th>Team</th>
-          <th>Wins</th>
-          <th>Losses</th>
-          <th>OT Losses</th>
-          <th>Points</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Carolina Hurricanes</td>
-          <td id="joesTeam1Wins"></td>
-          <td id="joesTeam1Losses"></td>
-          <td id="joesTeam1OTLosses"></td>
-          <td id="joesTeam1Points"></td>
-        </tr>
-        <tr>
-          <td>Boston Bruins</td>
-          <td id="joesTeam2Wins"></td>
-          <td id="joesTeam2Losses"></td>
-          <td id="joesTeam2OTLosses"></td>
-          <td id="joesTeam2Points"></td>
-        </tr>
-        <tr>
-          <td>Dallas Stars</td>
-          <td id="joesTeam3Wins"></td>
-          <td id="joesTeam3Losses"></td>
-          <td id="joesTeam3OTLosses"></td>
-          <td id="joesTeam3Points"></td>
-        </tr>
-        <tr>
-          <td>Buffalo Sabres</td>
-          <td id="joesTeam4Wins"></td>
-          <td id="joesTeam4Losses"></td>
-          <td id="joesTeam4OTLosses"></td>
-          <td id="joesTeam4Points"></td>
-        </tr>
-        <tr>
-          <td colspan="4">Total Points</td>
-          <td id="joesTeamsTotalPoints"></td>
-        </tr>
-      </tbody>
-    </table>
-    <!-- Repeat this table for Matt's Teams, Ren's Teams, Max's Team, Jeff's Teams, Jay's Teams -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="nhl.js"></script>
-  </body>
-</html>
+<html>
+<head>
+	<title>NHL Point Standings</title>
+</head>
+<body>
+	<h1>NHL Point Standings</h1>
+	<table>
+		<thead>
+			<tr>
+				<th>Team</th>
+				<th>Wins</th>
+				<th>Losses</th>
+				<th>OT Losses</th>
+				<th>Points</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>Carolina Hurricanes</td>
+				<td id="car-wins"></td>
+				<td id="car-losses"></td>
+				<td id="car-otlosses"></td>
+				<td id="car-points"></td>
+			</tr>
+			<tr>
+				<td>Boston Bruins</td>
+				<td id="bos-wins"></td>
+				<td id="bos-losses"></td>
+				<td id="bos-otlosses"></td>
+				<td id="bos-points"></td>
+			</tr>
+			<tr>
+				<td>Dallas Stars</td>
+				<td id="dal-wins"></td>
+				<td id="dal-losses"></td>
+				<td id="dal-otlosses"></td>
+				<td id="dal-points"></td>
+			</tr>
+			<tr>
+				<td>Buffalo Sabres</td>
+				<td id="buf-wins"></td>
+				<td id="buf-losses"></td>
+				<td id="buf-otlosses"></td>
+				<td id="buf-points"></td>
+			</tr>
+			<tr>
+				<td>Total Points</td>
+				<td id="total-wins"></td>
+				<td id="total-losses"></td>
+				<td id="total-otlosses"></td>
+				<td id="total-points"></td>
+			</tr>
+		</tbody>
+	</table>
+
+	<script>
+		function updateStandings() {
+			// Define team names and their respective API endpoints
+			const teamNames = ["Carolina Hurricanes", "Boston Bruins", "Dallas Stars", "Buffalo Sabres"];
+			const teamEndpoints = ["https://statsapi.web.nhl.com/api/v1/teams/12/stats", "https://statsapi.web.nhl.com/api/v1/teams/6/stats", "https://statsapi.web.nhl.com/api/v1/teams/25/stats", "https://statsapi.web.nhl.com/api/v1/teams/7/stats"];
+
+			// Initialize variables for total stats
+			let totalWins = 0;
+			let totalLosses = 0;
+			let totalOTLosses = 0;
+			let totalPoints = 0;
+
+			// Loop through each team and fetch their stats from the API
+			for (let i = 0; i < teamNames.length; i++) {
+				fetch(teamEndpoints[i])
+					.then(response => response.json())
+					.then(data => {
+						// Extract the necessary stats from the API response
+						const stats = data.stats[0].splits[0].stat;
+						const wins = stats.wins;
+						const losses = stats.losses;
+						const otLosses = stats.ot;
+
+						// Calculate the team's total points
+						const points = (2 * wins) + otLosses;
+
+						// Update the HTML table with
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Newtonsoft.Json;
+
+public partial class Default : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (!IsPostBack)
+        {
+            UpdateNHLStandingsTable().Wait();
+        }
+    }
+
+    private async Task UpdateNHLStandingsTable()
+    {
+        try
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                var response = await client.GetAsync("https://statsapi.web.nhl.com/api/v1/standings");
+
+                response.EnsureSuccessStatusCode();
+
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var standingsData = JsonConvert.DeserializeObject<NHLStandingsData>(jsonString);
+
+                var joeTeams = new List<string> { "CAR", "BOS", "DAL", "BUF" };
+                var joeTeamsData = standingsData.Records
+                    .SelectMany(record => record.TeamRecords)
+                    .Where(teamRecord => joeTeams.Contains(teamRecord.Team.Abbreviation))
+                    .ToList();
+
+                // Create HTML table headers
+                var table = new Table();
+                var headerRow = new TableHeaderRow();
+                headerRow.Cells.Add(new TableHeaderCell { Text = "Team" });
+                headerRow.Cells.Add(new TableHeaderCell { Text = "Wins" });
+                headerRow.Cells.Add(new TableHeaderCell { Text = "Losses" });
+                headerRow.Cells.Add(new TableHeaderCell { Text = "OT Losses" });
+                headerRow.Cells.Add(new TableHeaderCell { Text = "Points" });
+                table.Rows.Add(headerRow);
+
+                // Add rows for Joe's teams
+                foreach (var teamData in joeTeamsData)
+                {
+                    var row = new TableRow();
+                    row.Cells.Add(new TableCell { Text = teamData.Team.Name });
+                    row.Cells.Add(new TableCell { Text = teamData.Wins.ToString() });
+                    row.Cells.Add(new TableCell { Text = teamData.Losses.ToString() });
+                    row.Cells.Add(new TableCell { Text = teamData.OvertimeLosses.ToString() });
+                    row.Cells.Add(new TableCell { Text = teamData.Points.ToString() });
+                    table.Rows.Add(row);
+                }
+
+                // Add row for total points
+                var totalPointsRow = new TableRow();
+                totalPointsRow.Cells.Add(new TableCell { Text = "Total Points", ColumnSpan = 4, HorizontalAlign = HorizontalAlign.Right });
+                totalPointsRow.Cells.Add(new TableCell { Text = joeTeamsData.Sum(teamData => teamData.Points).ToString(), HorizontalAlign = HorizontalAlign.Center });
+                table.Rows.Add(totalPointsRow);
+
+                // Update the HTML table with the created table
+                standingsTableContainer.Controls.Clear();
+                standingsTableContainer.Controls.Add(table);
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            standingsTableContainer.Controls.Clear();
+            standingsTableContainer.Controls.Add(new LiteralControl("Failed to retrieve NHL standings: " + ex.Message));
+        }
+    }
+
+    private class NHLStandingsData
+    {
+        [JsonProperty("records")]
+        public List<NHLRecord> Records { get; set; }
+    }
+
+    private class NHLRecord
+    {
+        [JsonProperty("teamRecords")]
+        public List<NHLTeamRecord> TeamRecords { get; set; }
+    }
+    
+    private class NHLTeamRecord
+    {
+      using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
+using System.Web;
+
+namespace NHLStandings
+{
+    public class NHLStandingsData
+    {
+        private const string standingsUrl = "https://www.nhl.com/standings";
+
+        public static List<NHLTeamRecord> GetNHLStandings()
+        {
+            List<NHLTeamRecord> standings = new List<NHLTeamRecord>();
+            string html = GetHtmlFromUrl(standingsUrl);
+
+            if (!string.IsNullOrEmpty(html))
+            {
+                // Use regex to extract the table data
+                string tableRegex = @"<table class=""table standings""[\s\S]+?</table>";
+                Match tableMatch = Regex.Match(html, tableRegex);
+                if (tableMatch.Success)
+                {
+                    string tableHtml = tableMatch.Value;
+
+                    // Use regex to extract the team data from each row of the table
+                    string rowRegex = @"<tr class=""standingsRow[\s\S]+?</tr>";
+                    MatchCollection rowMatches = Regex.Matches(tableHtml, rowRegex);
+                    foreach (Match rowMatch in rowMatches)
+                    {
+                        string rowHtml = rowMatch.Value;
+                        NHLTeamRecord record = new NHLTeamRecord();
+
+                        // Use regex to extract the team name, wins, losses, and OT losses
+                        string teamRegex = @"<a href=""/team/(\w+)""[\s\S]+?>([\w\s.]+)</a>";
+                        Match teamMatch = Regex.Match(rowHtml, teamRegex);
+                        if (teamMatch.Success)
+                        {
+                            record.TeamAbbreviation = teamMatch.Groups[1].Value;
+                            record.TeamName = HttpUtility.HtmlDecode(teamMatch.Groups[2].Value);
+                        }
+
+                        string recordRegex = @"<td>(\d+)</td><td>(\d+)</td><td>(\d+)</td>";
+                        Match recordMatch = Regex.Match(rowHtml, recordRegex);
+                        if (recordMatch.Success)
+                        {
+                            record.Wins = int.Parse(recordMatch.Groups[1].Value);
+                            record.Losses = int.Parse(recordMatch.Groups[2].Value);
+                            record.OvertimeLosses = int.Parse(recordMatch.Groups[3].Value);
+                        }
+
+                        standings.Add(record);
+                    }
+                }
+            }
+
+            return standings;
+        }
+
+        private static string GetHtmlFromUrl(string url)
+        {
+            string html = null;
+
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                Stream stream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(stream);
+                html = reader.ReadToEnd();
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+            }
+
+            return html;
+        }
+
+        private class NHLTeamRecord
+        {
+            public string TeamAbbreviation { get; set; }
+            public string TeamName { get; set; }
+            public int Wins { get; set; }
+            public int Losses { get; set; }
+            public int OvertimeLosses { get; set; }
+        }
+    }
+}
