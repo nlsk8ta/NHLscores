@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>NHL Teams</title>
+	<style>
+		table {
+			border-collapse: collapse;
+			width: 50%;
+			margin: 0 auto;
+		}
+
+		th, td {
+			text-align: left;
+			padding: 8px;
+			border: 1px solid black;
+		}
+
+		th {
+			background-color: #4CAF50;
+			color: white;
+		}
+	</style>
+</head>
+<body>
+	<h1>Joe's Teams</h1>
+	<table>
+		<thead>
+			<tr>
+				<th>Team</th>
+				<th>Total Points</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>Carolina Hurricanes</td>
+				<td id="carolina-score"></td>
+			</tr>
+			<tr>
+				<td>Boston Bruins</td>
+				<td id="boston-score"></td>
+			</tr>
+			<tr>
+				<td>Dallas Stars</td>
+				<td id="dallas-score"></td>
+			</tr>
+			<tr>
+				<td>Buffalo Sabres</td>
+				<td id="buffalo-score"></td>
+			</tr>
+		</tbody>
+	</table>
+	<h1>Matt's Teams</h1>
+	<table>
+		<thead>
+			<tr>
+				<th>Team</th>
+				<th>Total Points</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>Calgary Flames</td>
+				<td id="calgary-score"></td>
+			</tr>
+			<tr>
+				<td>Los Angeles Kings</td>
+				<td id="la-score"></td>
+			</tr>
+			<tr>
+				<td>Dallas Stars</td>
+				<td id="dallas2-score"></td>
+			</tr>
+			<tr>
+				<td>Buffalo Sabres</td>
+				<td id="buffalo2-score"></td>
+			</tr>
+		</tbody>
+	</table>
+
+	<script>
+		function fetchScore(team, id) {
+			fetch(`https://statsapi.web.nhl.com/api/v1/teams/${team}/stats`)
+				.then(response => response.json())
+				.then(data => {
+					const score = data.stats[0].splits[0].stat.pts;
+					document.getElementById(id).innerHTML = score;
+				})
+				.catch(error => console.log(error));
+		}
+
+		fetchScore(12, "carolina-score");
+		fetchScore(6, "boston-score");
+		fetchScore(25, "dallas-score");
+		fetchScore(7, "buffalo-score");
+		fetchScore(20, "calgary-score");
+		fetchScore(26, "la-score");
+		fetchScore(25, "dallas2-score");
+		fetchScore(7, "buffalo2-score");
+	</script>
+</body>
+</html>
